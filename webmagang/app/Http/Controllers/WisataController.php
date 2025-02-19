@@ -8,18 +8,13 @@ use Illuminate\Http\Request;
 
 class WisataController extends Controller
 {
-
-    public function __construct()
-    {
-        $this->middleware('auth')->except(['index', 'show']);
-    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $wisatas = Wisata::all();
-        return view('home', compact('wisatas'));
+        $wisatas = Wisata::latest()->get();
+        return view('admin.wisata.index', compact('wisatas'));
     }
 
     /**
@@ -27,7 +22,7 @@ class WisataController extends Controller
      */
     public function create()
     {
-        return view('tambahwisata');
+        return view('admin.wisata.create');
     }
 
     /**
@@ -36,7 +31,6 @@ class WisataController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-
             'image' => 'required|mimes:jpeg,jpg,png|max:2048',
             'judul' => 'required',
             'descrip' => 'required',
@@ -47,11 +41,9 @@ class WisataController extends Controller
         ]);
 
         $imageName = time() . '.' . $request->image->extension();
-
         $request->image->move(public_path('uploads'), $imageName);
 
         $wisatas = new Wisata();
-
         $wisatas->judul = $request->input('judul');
         $wisatas->descrip = $request->input('descrip');
         $wisatas->istimewa = $request->input('istimewa');
@@ -59,18 +51,17 @@ class WisataController extends Controller
         $wisatas->harga = $request->input('harga');
         $wisatas->lokasi = $request->input('lokasi');
         $wisatas->image = $imageName;
-
         $wisatas->save();
 
-        return redirect('/home');
+        return redirect(route('admin.wisata.index'));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Wisata $wisata)
+    public function show(string $wisata)
     {
-        //
+        return redirect(route('admin.wisata.edit', [$wisata]));
     }
 
     /**
@@ -78,8 +69,8 @@ class WisataController extends Controller
      */
     public function edit(string $id)
     {
-        $wisatas = Wisata::find($id);
-        return view('editwisata', compact('wisatas'));
+        $wisata = Wisata::findOrFail($id);
+        return view('admin.wisata.edit', compact('wisata'));
     }
 
     /**
@@ -88,7 +79,6 @@ class WisataController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-
             'image' => 'mimes:jpeg,jpg,png|max:2048',
             'judul' => 'required',
             'descrip' => 'required',
@@ -99,7 +89,7 @@ class WisataController extends Controller
 
         ]);
 
-        $wisatas = Wisata::find($id);
+        $wisatas = Wisata::findOrFail($id);
 
         if ($request->has('image')) {
             //hapus file lama
@@ -109,21 +99,19 @@ class WisataController extends Controller
 
             // masukan gambar baru
             $imageName = time() . '.' . $request->image->extension();
-
             $request->image->move(public_path('uploads'), $imageName);
-
             $wisatas->image = $imageName;
         }
+
         $wisatas->judul = $request->input('judul');
         $wisatas->descrip = $request->input('descrip');
         $wisatas->istimewa = $request->input('istimewa');
         $wisatas->tips = $request->input('tips');
         $wisatas->harga = $request->input('harga');
         $wisatas->lokasi = $request->input('lokasi');
-
         $wisatas->save();
 
-        return redirect('/home');
+        return redirect(route('admin.wisata.index'));
     }
 
     /**
@@ -131,13 +119,13 @@ class WisataController extends Controller
      */
     public function destroy(string $id)
     {
-        $wisatas = Wisata::find($id);
+        $wisatas = Wisata::findOrFail($id);
 
         if ($wisatas->image) {
             File::delete('uploads/' . $wisatas->image);
         }
 
         $wisatas->delete();
-        return redirect('/home');
+        return redirect(route('admin.wisata.index'));
     }
 }

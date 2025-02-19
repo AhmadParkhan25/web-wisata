@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\FrontController;
+use App\Http\Controllers\RecomendationController;
 use App\Http\Controllers\WisataController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -15,51 +17,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
-
-Route::get('/about', function () {
-    return view('about', [
-        "title" => "About"
-    ]);
-});
-
-Route::get('/contact', function () {
-    return view('contact', [
-        "title" => "contact"
-    ]);
-});
-
-Route::get('/services', function () {
-    return view('services', [
-        "title" => "services"
-    ]);
-});
-
-Route::get('/blog', function () {
-    return view('blog', [
-        "title" => "blog"
-    ]);
-});
-
-Route::get('/blog2', function () {
-    return view('blog2', [
-        "title" => "blog"
-    ]);
-});
-
-Route::get('/blog3', function () {
-    return view('blog3', [
-        "title" => "blog"
-    ]);
-});
-
-
-Route::get('/tambah', function () {
-    return view('tambahwisata');
-});
 Auth::routes();
 
-Route::resource('/home', WisataController::class);
-// Route::resource('/home', WisataController::class);
+Route::redirect('/', '/home');
+Route::get('/home', [FrontController::class, 'home']);
+Route::get('/about', [FrontController::class, 'about']);
+Route::get('/blog', [FrontController::class, 'blog'])->name('front.blog.index');
+Route::get('/blog/{slug}-{id}', [FrontController::class, 'blogDetail'])->name('front.blog.show');
+Route::get('/services', [FrontController::class, 'services']);
+Route::get('/contact', [FrontController::class, 'contact']);
 
-Route::middleware(['auth'])->group(function () {});
+Route::group(['middleware' => "auth", "prefix" => "admin", "as" => "admin."], function () {
+    Route::resource("wisata", WisataController::class);
+    Route::resource("recomendation", RecomendationController::class)->only(['index', 'create', 'store', 'destroy']);
+});

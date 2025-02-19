@@ -122,13 +122,13 @@ button:focus {
     outline: none;
 }
 
-ul,
+/* ul,
 li,
 ol {
     margin: 0px;
     padding: 0px;
     list-style: none;
-}
+} */
 
 p {
     margin: 20px;

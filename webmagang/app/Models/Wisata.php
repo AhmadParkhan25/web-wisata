@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Wisata extends Model
 {
@@ -18,4 +19,9 @@ class Wisata extends Model
         'harga',
         'lokasi',
     ];
+
+    public function recomendation(): HasOne
+    {
+        return $this->hasOne(Recomendation::class);
+    }
 }
